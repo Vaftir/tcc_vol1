@@ -66,7 +66,6 @@ def view_img_window():
         [sg.Column(file_list_column)],
         [sg.Button('Abrir imagem', font=('Corbel', 12)),
         sg.Button('Cortar imagem', font=('Corbel', 12)), 
-        sg.Button('Reconhecer imagem', font=('Corbel', 12)), 
         sg.Button('Voltar', font=('Corbel', 12), button_color='#ed7b09')]
     ]
     img_view_window = sg.Window("Visualizador de imagens", layout)
@@ -122,24 +121,6 @@ def view_img_window():
                     cv.imshow('cropped', i)
             except:
                 pass
-            elif event == 'Reconhecer imagem':
-                try:
-                    img_name = get_img_path()
-                    img = img_read(img_name)
-                    template = cv.imread(f'photos\cropped_{img_name}',0)
-                    
-                    img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-                    w, h = template.shape[::-1]
-
-                    res = cv.matchTemplate(img_gray,template,cv.TM_CCOEFF_NORMED)
-                    threshold = 0.8
-                    loc = np.where( res >= threshold)
-                    for pt in zip(*loc[::-1]):
-                        cv.rectangle(img, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
-
-                    cv.imshow(img_name, img)
-                except:
-                    pass
     img_view_window.close()
 
 def main():
