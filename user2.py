@@ -17,10 +17,12 @@ file_types= [
     ("Todos os arquivos","*.*")
 ]
 
-
 x_start, y_start, x_end, y_end = 0, 0, 0, 0
-cropping = False    
+cropping = False   
+
 '''
+
+Yago Assis e Lucas Baesse grupo 1
 Requerimentos:
     pip install Pillow
     pip install opencv-contrib-python
@@ -133,7 +135,7 @@ def view_img_window():
         elif event == "Menu": #Volta pro menu
             img_view_window.close()
             menu_window()
-            
+
     img_view_window.close()
 
 
@@ -145,14 +147,14 @@ def correlacao_window():
     layout = [
         [sg.Image(key="-IMAGE-")],
         [
-            sg.Text("Imagem A"),
+            sg.Text("Imagem Original"),
             sg.Input(size=(25,1), key= "-FILE-"),
             sg.FileBrowse(file_types=file_types),
             sg.Button("Submit"),
         ],
         [sg.Image(key="-IMAGE2-")],
         [
-            sg.Text("Imagem B"),
+            sg.Text("Imagem Cortada"),
             sg.Input(size=(25,1), key= "-FILE2-"),
             sg.FileBrowse(file_types=file_types,initial_folder='photos'),
             sg.Button("Submit Crop"),
