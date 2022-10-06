@@ -3,7 +3,6 @@ import PySimpleGUI as sg
 import cv2 as cv
 import io
 import os.path
-import mathSum
 from matplotlib import pyplot as plt
 from PIL import Image
 
@@ -45,6 +44,9 @@ file_types= [
 x_start, y_start, x_end, y_end = 0, 0, 0, 0
 cropping = False   
 
+
+
+
 '''
 
 Yago Assis e Lucas Baesse grupo 1
@@ -56,6 +58,8 @@ Requerimentos:
 imageCut - > def para corte da imagem (a imagem recortada é salva como cropped.jpg
                                         na pasta photos do projeto)
                                         OBS: o imageCut é um método pronto
+        OBS: crie uma pasta Tmp ou temp no seu C: para que seja possível carregas as imagens
+             as imagens dentro de uma pasta do projeto não estão funcionando por bug do Sistema Operacional
             parametros:
                 x e y -> posiçoes do mouse
                 event -> evento para clique do mouse
@@ -234,8 +238,9 @@ def correlacao_window():
             correlacao_window.close()
             menu_window()
 
-def main():
+def main():   
     menu_window()
+  
     
 if __name__ == '__main__':
     main()
