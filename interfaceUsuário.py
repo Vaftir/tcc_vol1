@@ -48,8 +48,9 @@ cropping = False
 
 
 '''
-
-Yago Assis e Lucas Baesse grupo 1
+grupo 1
+Yago Assis  652209
+Lucas Baesse 
 Requerimentos:
     pip install Pillow
     pip install opencv-contrib-python
