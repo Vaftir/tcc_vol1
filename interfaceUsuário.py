@@ -3,10 +3,35 @@ import PySimpleGUI as sg
 import cv2 as cv
 import io
 import os.path
-import numpy as np
+import mathSum
 from matplotlib import pyplot as plt
 from PIL import Image
 
+
+def correlacao(pathImagem,pathCropped):
+
+    img = cv.imread(pathImagem,0)
+    img2 = img.copy()
+    template = cv.imread(pathCropped,0)
+    w, h = template.shape[::-1]
+    # All the 6 methods for comparison in a list
+    methods = ['cv.TM_CCOEFF_NORMED','cv.TM_CCORR_NORMED']
+    for meth in methods:
+        img = img2.copy()
+        method = eval(meth)
+        # Aplica a math template com o método
+        res = cv.matchTemplate(img,template,method)
+        min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
+        # If the method is TM_SQDIFF or TM_SQDIFF_NORMED, take minimum
+        if method in [cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]:
+            top_left = min_loc
+        else:
+            top_left = max_loc
+        bottom_right = (top_left[0] + w, top_left[1] + h)
+        cv.rectangle(img,top_left, bottom_right, 255, 2)
+        plt.imshow(img,cmap = 'gray')
+        plt.title('Ponto detectado'), plt.xticks([]), plt.yticks([])
+        plt.show()
 
 global aux
 sg.theme("DarkTeal2")
@@ -27,6 +52,7 @@ Requerimentos:
     pip install Pillow
     pip install opencv-contrib-python
     pip install matplotlib
+    pip install imutils
 imageCut - > def para corte da imagem (a imagem recortada é salva como cropped.jpg
                                         na pasta photos do projeto)
                                         OBS: o imageCut é um método pronto
@@ -54,8 +80,10 @@ def imageCut(event, x, y, flags, param):
         refPoint = [(x_start, y_start), (x_end, y_end)]
         if len(refPoint) == 2:
             roi = oriImage[refPoint[0][1]:refPoint[1][1], refPoint[0][0]:refPoint[1][0]]
+
             cv.imshow("corte", roi)
-            cv.imwrite(f'photos/cropped.jpg', roi)
+        
+            cv.imwrite(f'C:/Tmp/cropped.jpg', roi)
 '''
 Primeira página -> menu
 '''
@@ -63,8 +91,9 @@ def menu_window():
     sg.theme("DarkTeal2")
     menu_layout = [
         [sg.Text('Trabalho parte 1', font=('Verdana', 16), text_color='#ffffff')],
+        [sg.Text('Realize o corte primeiro depois a correlação', text_color='#ffffff')],
         [sg.Text('_'*30, text_color='#ffffff')],
-        [sg.Button('Carregar arquivo', font=('Verdana', 12))],
+        [sg.Button('Cortar imagem', font=('Verdana', 12))],
         [sg.Button('Correlação', font=('Verdana', 12))],
         [sg.Button('Sair', font=('Verdana', 12), button_color='#eb4034')]
     ]
@@ -73,7 +102,7 @@ def menu_window():
         event, values = menu_window.read()
         if event == 'Sair' or event == sg.WIN_CLOSED:
             break
-        elif event == 'Carregar arquivo':
+        elif event == 'Cortar imagem':
             menu_window.close()
             view_img_window()
         elif event == 'Correlação':
@@ -117,11 +146,12 @@ def view_img_window():
                 aux = image.save(bio,format="PNG")
                 image.save(bio,format="PNG")
                 img_view_window["-IMAGE-"].update(data=bio.getvalue())
+
         elif event == "Cortar imagem": #Botão que libera pra cortar a imagem
                 filename = values["-FILE-"]
                 img = cv.imread(filename)
-                imS = cv.resize(img, (960, 540))
-                img = imS
+                #imS = cv.resize(img, (960, 540))
+                #img = imS
 
                 cv.namedWindow(filename)
                 cv.setMouseCallback(filename, imageCut) #Chama imagemcut para cortar com o mouse
@@ -159,17 +189,26 @@ def correlacao_window():
             sg.FileBrowse(file_types=file_types,initial_folder='photos'),
             sg.Button("Submit Crop"),
         ],
-        [sg.Button("Menu")]
+        [ 
+            sg.Button("Menu"),
+            sg.Button("Mach")
+            
+        ]
     ]
     correlacao_window = sg.Window("Correlação", layout)
     '''
     Loop da aplicação da terceira página
     '''
+    global caminho
+    global caminho1
+
     while True: 
        event, values = correlacao_window.read()
+       caminho = values["-FILE-"]
+       caminho2 = values["-FILE2-"]
        if event == sg.WIN_CLOSED or event=="Exit": #Evento para fechar a aplicação
             break
-       elif (event == "Submit") and (values["-FILE-"]): #Botão submit que mostra o template da imagem
+       elif (event == "Submit"): #Botão submit que mostra o template da imagem
             filename = values["-FILE-"]
             if os.path.exists(filename):
                 image = Image.open(values["-FILE-"])
@@ -178,14 +217,19 @@ def correlacao_window():
                 aux = image.save(bio,format="PNG")
                 image.save(bio,format="PNG")
                 correlacao_window["-IMAGE-"].update(data=bio.getvalue())
-       elif (event == "Submit Crop") and (values["-FILE2-"]): #Botão submit que mostra o template da imagem
-            filename = values["-FILE2-"]
-            if os.path.exists(filename):
+       elif (event == "Submit Crop"): #Botão submit que mostra o template da imagem
+            filename2 = values["-FILE2-"]
+            if os.path.exists(filename2):
                 image = Image.open(values["-FILE2-"])
                 image.thumbnail((500,500))
                 bio = io.BytesIO()
                 image.save(bio,format="PNG")
-                correlacao_window["-IMAGE2-"].update(data=bio.getvalue()) 
+                correlacao_window["-IMAGE2-"].update(data=bio.getvalue())
+       elif event == ("Mach"):
+                if (values["-FILE2-"]) and (values["-FILE2-"]):
+                        correlacao(values["-FILE-"],values["-FILE2-"])
+                else:
+                    pass
        elif event == "Menu": #Volta pro menu
             correlacao_window.close()
             menu_window()
